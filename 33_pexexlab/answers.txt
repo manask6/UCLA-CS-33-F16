@@ -1,0 +1,36 @@
+Answers to "a few more questions" at end of pexex lab
+Manas Kumar
+004580689
+
+1. Emacs stores variables as elisp objects, which only have 62 bits of information
+due to a 2 bit tag. Emacs compensates for this by constantly shifting the numbers
+by 2, but this can lead to the loss of important bits or to overflow.
+
+2. At the bottom of the emacs source code (data.c), most-positive-fixnum is defined
+as "the largest value that is representable in a Lisp integer." Again, Emacs stores
+its variables with 62 bits of information, meaning the max possible value is 
+2^63-1 right shifted twice which is 2305843009213693951.
+
+3. Most-positive-fixnum times itself in binary gives 110000...00001. Because of the
+whole elisp object 62-bits rule, this number will be left shifted then right shifted
+by 2, meaning it will lose those two 1 bits in the beggining and become 0000...0001.
+
+4. Adding the -fsanitized=undefined option when compiling will check for overflow and
+return an error if it is detected. The source code (data.c) seems to have a big loop
+around line 2600 that deals with overflow in a similar way, so I don't think adding
+the option will do anything except overcomplicate the assembly code.
+
+5. With fwrapv on, the code will be able to overflow without producing undefined 
+behaviour, but this won't get rid of the overflow detector loop thing around line
+2600, so the code will still give the same errors.
+
+6. If we have to have fwrapv on, then the overflow detector loop around line 2600
+isn't necessary, since the behaviour it throws errors for won't be undefined.
+Thus, we could get rid of the INT_MULTIPLY_OVERFLOW condition check at line 2638
+to remove unecessary assembly lines and make multiplication more efficient.
+
+7. The difference in efficiency between having the overflow check mentioned
+above and not having it when fwrapv is enabled is roughly between ten and 
+thirty assembly instructions. This is not a significant difference when 
+multiplying a handful of numbers, but for a long list of operands we could
+face hundreds and hundreds unecessary instructions.

@@ -1,0 +1,16 @@
+Homework Problem 3.70
+Manas Kumar 004580689
+
+(A) 	e1.p has an offset of 0 bytes
+	e1.y has an offset of 8 bytes (a pointer like p is 8 bytes)
+	e2.x has an offset of 0 bytes (because e2 starts at same offset as e1)
+	e2.next has an offset of 8 bytes (a long like x is 8 bytes)
+
+(B) The union requires 16 bytes. Either it needs 8 bytes for a long pointer
+and 8 more for a long, or it needs 8 bytes for a long and 8 bytes for an ele
+pointer.
+
+(C) 
+void proc(union ele *up) {
+	up->e2.next->e1.y = *(up->e2.next->e1.p) - up->e2.x;
+}

@@ -1,0 +1,9 @@
+A: will always yield 1 because mathematically, -x>-y iff x<y for all real numbers. Either both these statements are true or they are both false.
+
+B: will always yield 1 because left shifting a sum by four is the same as multiplying by it 16, and adding y and subtracting x after that makes the multiplication 15 for x and 17 for y. 
+
+C: will always yield 1 because ~x=-x-1 so ~x+~y+1 = -x-1-y-1+1 = -(x+y)-1 and that is equal to ~(x+y). Overflows shouldn't affect this math at all.
+
+D: may not always equal 1 because of the signed to unsigned conversion
+
+E: will always yield 1 because the only thing that could happend to a binary number if it's shifted to the right and then equally back to the left is it could lose a few ones in the least significant places (the rightmost ones). This means the result can only be slightly less than or equal to the original number. If it were first shifted left then right, its possible the number's sign could change. 

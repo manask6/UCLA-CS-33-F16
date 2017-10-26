@@ -1,0 +1,40 @@
+Pexex Lab Log
+Manas Kumar
+004580689
+
+To get my trace.tr file, I did the following:
+
+gdb ~eggert/bin64/bin/emacs-24.5
+	to start the gdb debugger on emacs-24.5
+
+break Ftimes
+	to create a breakpoint at the Ftimes function, since that's the function we want to trace
+
+r -batch -eval '(print (* -12091 -424188 840704))'
+	to run the multiplication (*) function that uses the Ftimes function that we're tracing
+	The three numbers used were created by random.org
+
+set disassemble-next-line on
+	This command makes gdb automatically show the dissassembled machine code every time we step.
+	It basically does the command display/i $pc automatically every time but with more detail.
+
+
+Then I would repeat the following two commands until the function returned.:
+
+si
+	step forward one machine instruction (not one c expression)
+
+info registers
+	to get the info on the values stored in every register
+	I cross referenced these values with the assembly instructions to produce the third column.
+
+
+
+To summarize, for each si step I did, the first and second columns in my trace.tr file were copied 
+from the output of the set disassemble-next-line on command that happened every step (except for 
+the source code line number, which was copied from the output of si itself), and the third column 
+was written by me based on theoutput of the info registers command.
+
+The tricky part was that to find the line number, I needed to look at the output before stepping, 
+but for the register information I needed to look at the output after stepping. (The debugger 
+points to the instruction that it is about to do instead of the one it has just finished.)

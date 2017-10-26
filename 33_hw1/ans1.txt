@@ -1,0 +1,30 @@
+1. man -k "word" prints the manual pages of all commands with "word" in the 
+title or description
+
+2. cp is in /usr/bin/cp and wc is in usr/bin/wc
+
+3. The w command shows all users who are logged in
+
+4. the file /usr/bin/emacs-24.3 is executed
+
+5. The symbolic mode g+s, o-x means the set user/group ID permission is given to the group, and the execute permission is taken away from other user
+
+6. The command "find /directory -mtime -21 -ls" will find and list files in the directory that have been modified in the last 21 days.
+
+7. The Desktop, Documents, and Downloads directories (and all their sub-directories)have been modified in the past three weeks
+
+8. In /usr/bin/ (the location of "find") there are 264 files that are symlinks
+
+9. The oldest regular file in /usr/lib/ is "libfreeblpriv3.chk", dated April 15
+
+10. The locale command gets its data from the linux localization files in the /usr/ directory
+
+11. sort-lines, sort-paragraphs, sort-lines, sort-fields, sort-pages, sort-numeric-fields, sort-subr, sort-regexp-fields, and sort-columns are the Emacs commands with "sort"
+
+12. C-M-a moves the pointer to the top of the page, C-M-e moves it to the bottom, C-M-h puts a region around the whole page, C-M-f moves the pointer forward one word and C-M-b moves it backwards, and C-M-c exits a recursive edit
+
+13. In Emacs, C-g cancels any running or partially typed out command
+
+14. The yank command in emacs puts previously killed text into the buffer (so basically cut/paste)
+
+15. The Emacs dired commands shows everything the ls -l shell command does, as wells as the current and previous directories (. and ..) and many dot files 

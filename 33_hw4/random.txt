@@ -1,0 +1,43 @@
+CS33 Homework 4 Problem 2.89
+
+A. Will not always yield 1
+The reason is that casting a double as a float can cause the float to round
+to positive or negative infinity, since doubles can hold numbers much larger
+than those a float can (8 bytes vs 4 bytes). An int cannot hold larger numbers
+so casting it as a float cannot round to an infinity value. Using -fwrapv to
+compile will not affect this answer, since overflow does not occur, only
+rounding.
+
+B. Will not always yield 1
+x-y has the possibility of overflowing with int and double representations, but
+say it overflows on the right hand side of the equation (meaning it overflows
+before being cast as a double), it is possible this overflow won't occur on the
+left hand side since dx and dy are already doubles and have many more bits that
+can be filled before overflow occurs. In short, it's totally possible for
+overflow to happen on the casted left hand side, and not happen on the right
+hand side. Using -fwrapv to compile doesn't change this situation, since 
+if we have overflow on one side and not on the other, we will still likely not
+yield 1 if the overflow is undefined or if it reliably wraps.
+
+C. Will always yield 1
+All variables here are ints casted as doubles. Because doubles have more bits,
+we can assume this casting is lossless, meaning all the information in the ints
+will be preserved. The increased "room" that working with doubles gives us also
+negates the possibility of rounding errors. Using -fwrapv shouldn't change this
+answer, because overflow isn't possible with the extra bit-room we have in a
+double.
+
+D. Will not always yield 1
+This time we are multiplying, so it's possible the extra room (2^53-1 bits) in
+a double won't be enough to prevent overflow or rounding issues. It is also 
+possible that the overflow or rounding errors won't be the same on both sides
+of the equation, because floating point associativity isn't perfect. It's 
+possible that dx*dy on the left side could have a rounding error before it's 
+multiplied by dz, but dy*dz could not have such an error before it is
+multiplied by dx. -fwrapv does not affect rounding errors, only overflow
+errors, so the overall answer does not change with its use.
+
+E. Will not always yield 1
+If dx is 0 and dz is nonzero, the left side will resolve to NaN and the right
+side will resolve to 1, which are not equal. Overflow does not affect this
+case, so neither will using -fwrapv.

@@ -1,0 +1,166 @@
+CS 33 OpenMP Lab Report
+Manas Kumar
+004580689
+
+First off, I downloaded the openmplab.tgz file from the assignment website, moved it to the linux server with WinSCP,
+and then unzipped it with the command "tar -xzvf openmplab.tgz".
+
+Next I wanted to run the program normally, so I used the commands "make seq" and "./seq" and got the output:
+FUNC TIME : 0.499510
+TOTAL TIME : 2.509697
+
+Next, I ran the program again with GPROF enabled so I could see where to start with my optimizations. I used the 
+commands "make clean", "make seq GPROF=1", "./seq", and "gprof seq" and got the outputs:
+FUNC TIME : 0.715201
+TOTAL TIME : 3.376636
+
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls  ms/call  ms/call  name
+ 69.32      0.45     0.45       15    30.04    31.43  func1
+ 16.95      0.56     0.11  5177344     0.00     0.00  rand2
+  6.16      0.60     0.04   491520     0.00     0.00  findIndexBin
+  3.08      0.62     0.02                             sequence
+  1.54      0.63     0.01        1    10.01    99.25  addSeed
+  1.54      0.64     0.01        1    10.01    10.01  imdilateDisk
+  1.54      0.65     0.01                             filter
+  0.00      0.65     0.00   983042     0.00     0.00  round
+  0.00      0.65     0.00       16     0.00     0.00  dilateMatrix
+  0.00      0.65     0.00       15     0.00     0.00  func2
+  0.00      0.65     0.00       15     0.00     0.00  func3
+  0.00      0.65     0.00       15     0.00     0.00  func4
+  0.00      0.65     0.00       15     0.00     2.67  func5
+  0.00      0.65     0.00       15     0.00     0.00  rand1
+  0.00      0.65     0.00        2     0.00     0.00  get_time
+  0.00      0.65     0.00        1     0.00     0.00  elapsed_time
+  0.00      0.65     0.00        1     0.00     0.00  fillMatrix
+  0.00      0.65     0.00        1     0.00     0.00  func0
+  0.00      0.65     0.00        1     0.00     0.00  getNeighbors
+
+
+ Call graph (explanation follows)
+
+granularity: each sample hit covers 2 byte(s) for 1.54% of 0.65 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     80.1    0.01    0.51                 filter [1]
+                0.45    0.02      15/15          func1 [2]
+                0.00    0.04      15/15          func5 [7]
+                0.00    0.00      15/15          func2 [11]
+                0.00    0.00      15/15          func3 [12]
+                0.00    0.00      15/15          rand1 [14]
+                0.00    0.00      15/15          func4 [13]
+                0.00    0.00       2/2           get_time [15]
+                0.00    0.00       2/983042      round [9]
+                0.00    0.00       1/1           fillMatrix [17]
+                0.00    0.00       1/1           getNeighbors [19]
+                0.00    0.00       1/1           func0 [18]
+                0.00    0.00       1/1           elapsed_time [16]
+-----------------------------------------------
+                0.45    0.02      15/15          filter [1]
+[2]     72.4    0.45    0.02      15         func1 [2]
+                0.02    0.00  983040/5177344     rand2 [4]
+                0.00    0.00  983040/983042      round [9]
+-----------------------------------------------
+                                                 <spontaneous>
+[3]     19.9    0.02    0.11                 sequence [3]
+                0.01    0.09       1/1           addSeed [5]
+                0.01    0.00       1/1           imdilateDisk [8]
+-----------------------------------------------
+                0.02    0.00  983040/5177344     func1 [2]
+                0.09    0.00 4194304/5177344     addSeed [5]
+[4]     16.9    0.11    0.00 5177344         rand2 [4]
+-----------------------------------------------
+                0.01    0.09       1/1           sequence [3]
+[5]     15.2    0.01    0.09       1         addSeed [5]
+                0.09    0.00 4194304/5177344     rand2 [4]
+-----------------------------------------------
+                0.04    0.00  491520/491520      func5 [7]
+[6]      6.2    0.04    0.00  491520         findIndexBin [6]
+-----------------------------------------------
+                0.00    0.04      15/15          filter [1]
+[7]      6.2    0.00    0.04      15         func5 [7]
+                0.04    0.00  491520/491520      findIndexBin [6]
+-----------------------------------------------
+                0.01    0.00       1/1           sequence [3]
+[8]      1.5    0.01    0.00       1         imdilateDisk [8]
+                0.00    0.00      16/16          dilateMatrix [10]
+-----------------------------------------------
+                0.00    0.00       2/983042      filter [1]
+                0.00    0.00  983040/983042      func1 [2]
+[9]      0.0    0.00    0.00  983042         round [9]
+-----------------------------------------------
+                0.00    0.00      16/16          imdilateDisk [8]
+[10]     0.0    0.00    0.00      16         dilateMatrix [10]
+-----------------------------------------------
+                0.00    0.00      15/15          filter [1]
+[11]     0.0    0.00    0.00      15         func2 [11]
+-----------------------------------------------
+                0.00    0.00      15/15          filter [1]
+[12]     0.0    0.00    0.00      15         func3 [12]
+-----------------------------------------------
+                0.00    0.00      15/15          filter [1]
+[13]     0.0    0.00    0.00      15         func4 [13]
+-----------------------------------------------
+                0.00    0.00      15/15          filter [1]
+[14]     0.0    0.00    0.00      15         rand1 [14]
+-----------------------------------------------
+                0.00    0.00       2/2           filter [1]
+[15]     0.0    0.00    0.00       2         get_time [15]
+-----------------------------------------------
+                0.00    0.00       1/1           filter [1]
+[16]     0.0    0.00    0.00       1         elapsed_time [16]
+-----------------------------------------------
+                0.00    0.00       1/1           filter [1]
+[17]     0.0    0.00    0.00       1         fillMatrix [17]
+-----------------------------------------------
+                0.00    0.00       1/1           filter [1]
+[18]     0.0    0.00    0.00       1         func0 [18]
+-----------------------------------------------
+                0.00    0.00       1/1           filter [1]
+[19]     0.0    0.00    0.00       1         getNeighbors [19]
+-----------------------------------------------
+
+
+
+My observations at this point were that the FUNC and TOTAL times were higher this time, likely due to some overhead
+due to having GPROF enabled. Also, by looking at the flat profile and the call graph, it was clear that the function
+"func1" takes up the most time by far. To get the 3.5x performance improvement, I knew I had to start there.
+
+Next, just to be sure, I checked for memory leaks with the commands "make clean", "make omp MTRACE=1", "./omp",
+and "make checkmem" and got no memory leaks. This time, the FUNC and TOTAL times were closer to the first times I
+saw, so my theory about GPROF having overhead was probably correct. This was good news since I had a good idea of 
+what the unoptimized times were. I knew I was looking to improve the FUNC time to a little under 1/7th of a second
+(~0.5/3.5).
+
+Anyways, back to the optimization itself: I then opened up func.c and tried to parallelize the function "func1". The
+function itself was comprised of two for loops. After googling how to use open multi-processing to optimized for
+loops, I learned that everything I needed was already baked into the C standard, so I just put "#pragma omp parallel
+for" before each for loop to allow each run of each loop to be handed to a different processor core (so basically
+allowing multi-threading). While this alone was fine for the first loop, which modified seperate array entries in
+each run of the loop, the second loop had code that modified non-array variables declared beforehand. This meant the
+possibility of different threads operating on the same variable at the same time, which would be fairly undefined
+behaviour. To fix this, I added "private(j,index_X,index_Y)" after the "#pragma omp parallel for" line to allow each
+run of the loop (so each thread) to use a different version of the variables j, index_X, and index_Y.
+
+After adding those lines, I tested the omp version of the executable again with "make clean", "make omp", and "./omp":
+FUNC TIME : 0.241984
+TOTAL TIME : 2.514615
+
+At this point, I had improved the FUNC time by about 2x. Not bad for only two lines of code, but still not the 3.5x
+that was needed. I proceeded to add "#pragma omp parallel" to all the for loops in func.c to see how that improved
+things. When doing this, I also sometimes added "reduction(+:variable_name)" to the pragma statements since OpenMP
+apperently has "a specific clause to accommodate loops that accumulate a value."
+
+At this point, I realized that the FUNC time was actually slower when tested on server 7, but was significantly
+faster on server 9. I realized this was because I hadn't set the number of threads I wanted to create, so I added
+"num_threads(numthreads)" to the end of each #pragma statement and set numthreads as a global variable equal to 16.
+
+After making these changes, my times were:
+FUNC TIME : 0.055455
+TOTAL TIME : 2.179378
+
+

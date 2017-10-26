@@ -1,0 +1,70 @@
+Homework Problem 3.67
+Manas Kumar 004580689
+
+(A) The "diagram" below shows the stack frame right before "process" is called
+
+|	<- %rbp	(highest memory address)
+|
+|
+|
+|
+|
+|
+|
+|
+|
+|z	<- %rsp+24
+|&z	<- %rsp+16
+|y	<- %rsp+8
+|x	<- %rsp (%rbp-104)
+|
+|	<- (lowest memory address (distance not to scale))
+
+(B) According to the c code, eval passes s (of type strA) in its call to
+process. In the assembly code, right before process is called, %rdi has 
+the value the stack pointer plus 64 bytes points to. Process then uses this
+address to build its own frame, seen by the fact that it only refers
+to s by using %rsp.
+
+(C) Process uses the stack pointer %rsp to access s's elements by using offsets.
+Specifically, it accesses y with 16(%rsp), x with 8(%rsp), and z with %rdx
+which has 24(%rsp)'s value stored in it. These addresses are all 8 bytes 
+higher than expected (see diagram) because "call" moves %rsp down 8 bytes.
+
+(D) The value of %rdi when process starts processing is 64(%rsp), which is the
+address where process sets the values of return structure r. Specifically,
+it puts 16(%rsp) (aka y) in %rcx and puts that value into (%rdi). It then
+puts 8(%rsp) (aka x) in %rcx and puts that value into 8(%rdi). Finally, %rdx
+which holds 24(%rsp) (aka z) thanks to line 3 is put into 16(%rdi). The 
+address %rdi now "holds" x, y, and z with offsets and it is this address 
+that is returned through %rax. Also, x and y are "flipped" because they are
+part of the same array.
+
+(E) The diagram below shows the stack frame of eval after process returns
+
+|	<- %rbp	(highest memory address)
+|
+|
+|z	<- %rsp+80
+|x	<- %rsp+72
+|y	<- %rsp+64
+|
+|
+|
+|
+|z	<- %rsp+32
+|&z	<- %rsp+24
+|y	<- %rsp+16
+|x	<- %rsp+8
+|ret	<- %rsp
+|
+|
+|	<- (lowest memory address (distance not to scale))
+
+(F) In general, structure arguments are passed between functions by means of
+the stack pointer. Specifically, a function that isn't directly given these
+values as parameters can access them if the caller function puts them at 
+ordered offsets compared to %rsp. A function can return a structure in much
+the same way: it can put the needed values at certain offsets somewhere else
+in the stack and return the address of the lowest one so the caller can 
+iterate from there to access all the values in the structure.

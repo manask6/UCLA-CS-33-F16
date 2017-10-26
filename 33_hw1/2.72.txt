@@ -1,0 +1,3 @@
+(maxbytes-sizeof(val) >= 0) is always a true statement because sizeof(val) returns an unsigned data type, size_t. This means the statement uses unsigned arithmetic, so even if maxbytes is smaller than the size_t value, their difference will still end up positive because of overflow.
+
+To fix this, the conditional test in the parenthesis should be changed to (maxbytes > sizeof(val))

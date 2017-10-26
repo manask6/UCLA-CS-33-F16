@@ -1,0 +1,68 @@
+Compilation of testovf.c in 3 different ways: the results
+Manas Kumar
+004580689
+
+"gcc -S -O2 testovf.c" produces:
+testovf:
+	xorl	%eax, %eax
+	ret
+
+When testovf.c is compiled only with optimization level 2, the assembly code 
+simply returns %eax xor'ed with itself,or in other words 0. This makes sense 
+because the function basically returns 2x<x, which is always false in the 
+compilers mind, since it hasn't been instructed to consider cases of overflow 
+(such as @*LONG_MAX).
+
+
+"gcc -S -O2 -fsanitize=undefined testovf.c" produces:
+testovf:
+	pushq	%rbp
+	pushq	%rbx
+	movabsq	$9223372036854775807, %rdx
+	subq	$8, %rsp
+	movq	big(%rip), %rbx
+	movq	%rbx, %rbp
+	addq	%rdx, %rbp
+	jo	.L6
+.L2:
+	cmpq	%rbp, %rbx
+	setg	%al
+	addq	$8, %rsp
+	popq	%rbx
+	popq	%rbp
+	ret
+.L6:
+	movq	%rbx, %rsi
+	movl	$.Lubsan_data0, %edi
+	call	__ubsan_handle_add_overflow
+	jmp	.L2
+
+When testovf is compiled with optimization 2 and UndefinedBehaviorSanitizer 
+turned on, the code is set to give an error message whenever undefined 
+behavior (including signed overflow) is seen. Specifically, the line with
+jo .L6 will jump if overflow is detected to .L6, the section that handles 
+the error message by calling __ubsan_handle_add_overflow. With or without
+overflow, the function will eventually arrive at location .L2, which is 
+where the comparison takes place and where we return.
+
+
+"gcc -S -O2 -fwrapv testovf.c" produces:
+testovf:
+	movq	big(%rip), %rdx
+	movabsq	$9223372036854775807, %rax
+	addq	%rdx, %rax
+	cmpq	%rax, %rdx
+	setg	%al
+	ret
+
+When testovf is compiled with optimization 2 and fwrapv, it is instructed to 
+handle all overflows by wrapping around and not treating them like undefined 
+behaviour. Here, the assembly code cannot assume that 2x<x is always false,
+like with the first case, because this wraparound overflow condition might 
+make it true. So, this code simply adds the 'big' variable (in %rdx) to LONG_MAX
+(in %rax), compares it to 'big', and returns the result.
+
+
+In short, the first case deals with overflow by pretending it doesn't exist, the
+second case treats it as undefined behaviour and throws an error when it occurs,
+and the last case does the comparison normally assuming overflow will wrap around.

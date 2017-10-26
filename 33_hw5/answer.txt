@@ -1,0 +1,14 @@
+CS 33 Homework 5
+Manas Kumar
+004580689
+
+12.18
+A is unsafe because the path crosses into the upper left of the unsafe region
+B is safe; it never touches the unsafe region
+C is unsafe because the path goes right up the middle of the unsafe region
+
+12.24
+These functions are not reentrant, because their pointer parameters void 
+*usrbuff and (sometimes) rio_t *rp could access the same functions and the same
+location(s) in memory. This would mean they might not be able to be executed
+after being interrupted.
